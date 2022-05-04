@@ -1,7 +1,7 @@
 {
-  "name": "npm-publish-ts",
-  "version": "0.0.0",
-  "description": "npm-publish-ts",
+  "name": "qiniu-upload-dist",
+  "version": "1.0.0",
+  "description": "qiniu-upload-dist",
   "main": "./dist/index.js",
   "files": [
     "dist"
@@ -25,15 +25,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhouhuafei/npm-publish-ts.git"
+    "url": "git+https://github.com/zhouhuafei/qiniu-upload-dist.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/zhouhuafei/npm-publish-ts/issues"
+    "url": "https://github.com/zhouhuafei/qiniu-upload-dist/issues"
   },
-  "homepage": "https://github.com/zhouhuafei/npm-publish-ts#readme",
+  "homepage": "https://github.com/zhouhuafei/qiniu-upload-dist#readme",
   "dependencies": {
     "zhf.sku": "^1.0.2"
   },
