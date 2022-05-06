@@ -35,6 +35,8 @@
   },
   "homepage": "https://github.com/zhouhuafei/qiniu-upload-dist#readme",
   "dependencies": {
+    "fast-glob": "^3.2.11",
+    "qiniu": "^7.6.0",
     "zhf.sku": "^1.0.2"
   },
   "devDependencies": {
