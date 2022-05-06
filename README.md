@@ -10,8 +10,8 @@ upload({
     { dot: true } // 使之支持上传dist目录中，以.开头的文件，例如.editorconfig文件。
   ],
   qiniuConfig: {
-    accessKey: '', // 必填 - 七牛的Ak。
-    secretKey: '', // 必填 - 七牛的Sk。
+    accessKey: '', // 必填 - 七牛的AK。
+    secretKey: '', // 必填 - 七牛的SK。
     bucket: '', // 必填 - 七牛的空间名称。
     cname: '', // 非必填 - 七牛的空间域名。
     expires: 7200 // 非必填 - token的有效期，此处设置的是2个小时（7200秒），默认是1个小时（3600秒）。
