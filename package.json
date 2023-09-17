@@ -15,6 +15,7 @@
     "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts --ignore-path ./.gitignore",
     "fix": "npm run lint -- --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "run": "ts-node -r tsconfig-paths/register ./src/run",
     "del": "ts-node -r tsconfig-paths/register ./scripts/del",
     "gulpDev": "cross-env NODE_ENV=development gulp -f ./gulpfile.ts",
     "gulpBuild": "cross-env NODE_ENV=production gulp -f ./gulpfile.ts",
