@@ -1,3 +1,4 @@
+// https://typescript-eslint.io/getting-started/#step-2-configuration
 module.exports = {
   root: true,
   env: {
@@ -7,6 +8,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   extends: [
     'standard',
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended'
   ],
   rules: {}
