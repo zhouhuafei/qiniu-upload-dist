@@ -1,9 +1,7 @@
 import { name, version } from '@/utils/package'
-import sku from 'zhf.sku'
 
 console.log('name：', name)
 console.log('version：', version)
-console.log('sku：', sku([['a', 'b'], ['1', '2']]))
 
 ;(async function () {
   const { sum } = await import('@/utils/sum')

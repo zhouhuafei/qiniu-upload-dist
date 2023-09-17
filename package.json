@@ -34,9 +34,6 @@
     "url": "https://github.com/zhouhuafei/npm-publish-ts/issues"
   },
   "homepage": "https://github.com/zhouhuafei/npm-publish-ts#readme",
-  "dependencies": {
-    "zhf.sku": "^1.0.2"
-  },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/preset-env": "^7.16.11",
