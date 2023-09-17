@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts --ignore-path ./.gitignore",
+    "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts",
     "fix": "npm run lint -- --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "del": "ts-node -r tsconfig-paths/register ./scripts/del",
