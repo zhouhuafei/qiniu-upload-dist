@@ -1,3 +1,18 @@
+## 分支说明
+* build-ts-use-ttypescript：使用ttsc生成类型声明文件，使用ttsc生成js。
+  - 此乃最初的默认分支，其他分支皆基于此分支修改而来。
+  - ts官方建议用tsc生成类型声明文件，用babel生成js。
+* build-ts-use-babel：使用ttsc生成类型声明文件，使用babel生成js。
+  - 遵从官方建议，使用babel生成js。
+  - 但是babel仅能用来处理ts和js类型的文件，无法用来处理其他类型的文件。
+  - 为了寻求更多的可能性，我引入了gulp。
+* build-ts-use-gulp-typescript：使用ttsc生成类型声明文件，使用gulp-typescript生成js。
+  - 使用gulp-typescript生成js的速度太慢了。
+  - 所以我把gulp-typescript更换成了gulp-babel。
+* build-ts-use-gulp-babel：使用ttsc生成类型声明文件，使用gulp-babel生成js。
+  - 此乃现在的默认分支。
+  - 此分支后续会继续维护，其他分支，停止维护。
+
 ## 把ts打包成js
 * 把ts打包成js需要使用`gulp`命令。
 * 使用`gulp`命令需要`gulp-cli`包和`gulp`包和`gulp-babel`包和`@babel/preset-env`包（含`@babel/core`包和`@babel/plugin-transform-modules-commonjs`包）和`@babel/plugin-transform-typescript`包和`gulpfile.ts`配置文件。
