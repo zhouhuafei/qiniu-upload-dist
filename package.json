@@ -1,22 +1,20 @@
 {
   "name": "npm-publish-ts",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
   "description": "npm-publish-ts",
   "main": "./dist/index.js",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": "14.19.1",
-    "npm": "6.14.16"
+    "node": "18.17.1",
+    "npm": "9.6.7"
   },
   "scripts": {
     "prepare": "husky install",
     "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts --ignore-path ./.gitignore",
     "fix": "npm run lint -- --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "run": "ts-node -r tsconfig-paths/register ./src/run",
     "del": "ts-node -r tsconfig-paths/register ./scripts/del",
     "gulpDev": "cross-env NODE_ENV=development gulp -f ./gulpfile.ts",
     "gulpBuild": "cross-env NODE_ENV=production gulp -f ./gulpfile.ts",
