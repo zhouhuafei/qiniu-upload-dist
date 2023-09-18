@@ -1,18 +1,18 @@
 {
   "name": "qiniu-upload-dist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "qiniu-upload-dist",
   "main": "./dist/index.js",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": "14.19.1",
-    "npm": "6.14.16"
+    "node": "18.17.1",
+    "npm": "9.6.7"
   },
   "scripts": {
     "prepare": "husky install",
-    "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts --ignore-path ./.gitignore",
+    "lint": "cross-env NODE_ENV=production eslint ./ --ext .js,.ts",
     "fix": "npm run lint -- --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "del": "ts-node -r tsconfig-paths/register ./scripts/del",
@@ -36,8 +36,7 @@
   "homepage": "https://github.com/zhouhuafei/qiniu-upload-dist#readme",
   "dependencies": {
     "fast-glob": "^3.2.11",
-    "qiniu": "^7.6.0",
-    "zhf.sku": "^1.0.2"
+    "qiniu": "^7.6.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.16.8",
@@ -54,20 +53,21 @@
     "cross-env": "^7.0.3",
     "del": "^6.0.0",
     "eslint": "^8.10.0",
-    "eslint-config-standard": "^16.0.3",
+    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
+    "gulp-changed": "^4.0.3",
     "gulp-cli": "^2.3.0",
-    "husky": "^7.0.4",
+    "husky": "^8.0.3",
     "jest": "^27.5.1",
     "lint-staged": "^12.3.4",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.6.0",
     "tsconfig-paths": "^3.14.1",
-    "ttypescript": "^1.5.13",
+    "ttypescript": "^1.5.15",
     "typescript": "~4.5.5",
     "typescript-transform-paths": "^3.3.1"
   }
