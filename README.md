@@ -5,6 +5,7 @@
 const { upload } = require('qiniu-upload-dist')
 
 upload({
+  urlsToRefresh: [], // CDN文件刷新，直接输入需要刷新的，文件的访问全路径即可。例如：https://www.xyz.com/index.html
   fastGlobConfig: [
     ['./dist/**/*.*', '!./dist/**/*.html'], // 上传dist目录中所有的文件，除了以.html结尾的文件。
     { dot: true } // 使之支持上传dist目录中，以.开头的文件，例如.editorconfig文件。
