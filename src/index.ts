@@ -12,8 +12,8 @@ let isInitSuccess = true
 let qiNiuConfig: any
 // mac
 let mac: any
-// uploadQiNiuToken
-let uploadQiNiuToken = ''
+// uploadToken
+let uploadToken = ''
 // bucketManager、formUploader、cdnManager
 let bucketManager: any
 let formUploader: any
@@ -23,7 +23,7 @@ let putExtra: any
 // uploadConfig
 let uploadConfig: UploadConfig
 
-// 初始化
+// 初始化 - bucketManager、formUploader、cdnManager
 async function fnInit (myQiNiuConfig) {
   // qiNiuConfig
   qiNiuConfig = myQiNiuConfig
@@ -49,12 +49,12 @@ async function fnInit (myQiNiuConfig) {
   // mac
   mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
 
-  // uploadQiNiuToken
+  // uploadToken
   const expires = qiNiuConfig.expires || 3600
   const returnBody = '{"name":$(fname),"path":"$(key)","size":$(fsize),"mimeType":"$(mimeType)","bucket":$(bucket)}'
   const options = { scope: bucket, expires, returnBody }
   const putPolicy = new qiniu.rs.PutPolicy(options)
-  uploadQiNiuToken = putPolicy.uploadToken(mac)
+  uploadToken = putPolicy.uploadToken(mac)
 
   // bucketManager、formUploader、cdnManager
   const config: any = new qiniu.conf.Config()
@@ -73,7 +73,7 @@ async function fnInit (myQiNiuConfig) {
   }
 }
 
-// 删除所有文件
+// 删除所有文件 - 因上传不支持强制性覆盖上传，所以在上传前要先删除掉想要覆盖的文件。
 async function fnDeleteFiles (keys: string[]) {
   if (!isInitSuccess) return console.log('未成功初始化，请检查参数后重试')
 
@@ -85,7 +85,7 @@ async function fnDeleteFiles (keys: string[]) {
   return Promise.all(all)
 }
 
-// 删除单个文件
+// 删除单个文件 - 因上传不支持强制性覆盖上传，所以在上传前要先删除掉想要覆盖的文件。
 function _fnDeleteOneFile (key) {
   return new Promise((resolve) => {
     bucketManager.delete(qiNiuConfig.bucket, key, function (err, respBody, respInfo) {
@@ -104,7 +104,7 @@ function _fnDeleteOneFile (key) {
   })
 }
 
-// 上传所有文件
+// 上传所有文件 - 不支持强制性覆盖上传 - 文件名称不变，内容不变，上传会提示成功 - 文件名称不变，内容改变，上传会提示失败
 async function fnUploadFiles (myUploadConfig: UploadConfig) {
   if (!isInitSuccess) return console.log('未成功初始化，请检查参数后重试')
 
@@ -117,7 +117,7 @@ async function fnUploadFiles (myUploadConfig: UploadConfig) {
   return Promise.all(all)
 }
 
-// 上传单个文件
+// 上传单个文件 - 不支持强制性覆盖上传 - 文件名称不变，内容不变，上传会提示成功 - 文件名称不变，内容改变，上传会提示失败
 async function _fnUploadOneFile (localFilePath) {
   const pathPrefix = uploadConfig.pathPrefix || ''
   let key: any = localFilePath.split('/').filter(v => (v !== '.'))
@@ -128,7 +128,7 @@ async function _fnUploadOneFile (localFilePath) {
   }
   key = key.join('/')
   return new Promise((resolve) => {
-    formUploader.putFile(uploadQiNiuToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
+    formUploader.putFile(uploadToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
       if (respErr) {
         console.log('上传出错', '本地文件路径', localFilePath, respErr)
         return resolve('failure')
