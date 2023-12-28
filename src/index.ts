@@ -2,42 +2,45 @@ import qiniu from 'qiniu'
 import fg from 'fast-glob'
 
 interface UploadConfig {
-  preDeleteFiles: string[]
-  urlsToRefresh: string[]
   fastGlobConfig: [string[], fg.Options]
-  qiniuConfig: any,
   pathPrefix: string
 }
 
-// qiniuConfig
-let qiniuConfig: any
-// mac
-let mac: any
-// uploadQiniuToken
-let uploadQiniuToken = ''
-// bucketManager、formUploader
-let bucketManager: any
-let formUploader: any
 // isInitSuccess
 let isInitSuccess = true
+// qiNiuConfig
+let qiNiuConfig: any
+// mac
+let mac: any
+// uploadQiNiuToken
+let uploadQiNiuToken = ''
+// bucketManager、formUploader、cdnManager
+let bucketManager: any
+let formUploader: any
+let cdnManager: any
+// putExtra
+let putExtra: any
+// uploadConfig
+let uploadConfig: UploadConfig
 
-async function fnInit (myQiniuConfig) {
-  // qiniuConfig
-  qiniuConfig = myQiniuConfig
+// 初始化
+async function fnInit (myQiNiuConfig) {
+  // qiNiuConfig
+  qiNiuConfig = myQiNiuConfig
 
-  const accessKey = qiniuConfig.accessKey
+  const accessKey = qiNiuConfig.accessKey
   if (!accessKey) {
     isInitSuccess = false
     return console.log('accessKey必填')
   }
 
-  const secretKey = qiniuConfig.secretKey
+  const secretKey = qiNiuConfig.secretKey
   if (!secretKey) {
     isInitSuccess = false
     return console.log('secretKey必填')
   }
 
-  const bucket = qiniuConfig.bucket
+  const bucket = qiNiuConfig.bucket
   if (!bucket) {
     isInitSuccess = false
     return console.log('bucket必填')
@@ -46,75 +49,52 @@ async function fnInit (myQiniuConfig) {
   // mac
   mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
 
-  // uploadQiniuToken
-  const expires = qiniuConfig.expires || 3600
+  // uploadQiNiuToken
+  const expires = qiNiuConfig.expires || 3600
   const returnBody = '{"name":$(fname),"path":"$(key)","size":$(fsize),"mimeType":"$(mimeType)","bucket":$(bucket)}'
   const options = { scope: bucket, expires, returnBody }
   const putPolicy = new qiniu.rs.PutPolicy(options)
-  if (!uploadQiniuToken) uploadQiniuToken = putPolicy.uploadToken(mac)
+  uploadQiNiuToken = putPolicy.uploadToken(mac)
 
-  // bucketManager、formUploader
+  // bucketManager、formUploader、cdnManager
   const config: any = new qiniu.conf.Config()
   config.zone = qiniu.zone.Zone_z0
   bucketManager = new qiniu.rs.BucketManager(mac, config)
   formUploader = new qiniu.form_up.FormUploader(config)
-}
+  cdnManager = new qiniu.cdn.CdnManager(mac)
 
-// 七牛 - 上传 - 函数封装
-async function fnUploadQiniu (localFilePath, uploadConfig) {
-  return await fnUploadQiniuFile(localFilePath, uploadQiniuToken, uploadConfig)
-}
+  // putExtra
+  putExtra = new qiniu.form_up.PutExtra()
 
-// 七牛 - 上传 - 上传文件
-async function fnUploadQiniuFile (localFilePath, uploadQiniuToken, uploadConfig) {
-  const putExtra = new qiniu.form_up.PutExtra()
-  const pathPrefix = uploadConfig.pathPrefix || ''
-  let key = localFilePath.split('/').filter(v => (v !== '.'))
-  if (pathPrefix) {
-    key[0] = pathPrefix
-  } else {
-    key.shift()
+  return {
+    bucketManager,
+    formUploader,
+    cdnManager
   }
-  key = key.join('/')
-  return await fnPutFile(formUploader, key, localFilePath, putExtra, qiniuConfig)
 }
 
-function fnPutFile (formUploader, key, localFilePath, putExtra, qiniuConfig) {
-  return new Promise((resolve) => {
-    formUploader.putFile(uploadQiniuToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
-      if (respErr) {
-        console.log('上传出错', '本地文件路径', localFilePath, respErr)
-        return resolve('failure')
-      }
-      if (respInfo.statusCode === 200) {
-        console.log('上传成功', '本地文件路径', localFilePath, '远程文件路径', `${qiniuConfig.cname}/${respBody.path}`)
-        resolve('success')
-      } else {
-        console.log('上传失败', '本地文件路径', localFilePath, respInfo.statusCode, respBody)
-        resolve('failure')
-      }
-    })
-  })
-}
+// 删除所有文件
+async function fnDeleteFiles (keys: string[]) {
+  if (!isInitSuccess) return console.log('未成功初始化，请检查参数后重试')
 
-async function fnDeleteFiles (keys) {
-  if (!isInitSuccess) return
-
+  const all = []
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    await fnDeleteOneFile(key)
+    all.push(_fnDeleteOneFile(key))
   }
+  return Promise.all(all)
 }
 
-function fnDeleteOneFile (key) {
+// 删除单个文件
+function _fnDeleteOneFile (key) {
   return new Promise((resolve) => {
-    bucketManager.delete(qiniuConfig.bucket, key, function (err, respBody, respInfo) {
+    bucketManager.delete(qiNiuConfig.bucket, key, function (err, respBody, respInfo) {
       if (err) {
         console.log('删除出错', err)
         resolve('failure')
       } else {
         if (respInfo.statusCode === 200) {
-          console.log('删除成功', respInfo.statusCode, respBody)
+          console.log('删除成功', respInfo.statusCode)
         } else {
           console.log('删除失败', respInfo.statusCode, respBody)
         }
@@ -124,44 +104,66 @@ function fnDeleteOneFile (key) {
   })
 }
 
-async function fnUpload (uploadConfig: UploadConfig) {
+// 上传所有文件
+async function fnUploadFiles (myUploadConfig: UploadConfig) {
+  if (!isInitSuccess) return console.log('未成功初始化，请检查参数后重试')
+
+  uploadConfig = myUploadConfig
   const entries = await fg(...uploadConfig.fastGlobConfig)
-  // for (let i = 0; i < uploadConfig.preDeleteFiles.length; i++) {
-  //   const fileKey = uploadConfig.preDeleteFiles[i]
-  //   await fnDeleteFiles(formUploader, bucket, key)
-  // }
+  const all = []
   for (let i = 0; i < entries.length; i++) {
-    const localFilePath = entries[i]
-    await fnUploadQiniu(localFilePath, uploadConfig)
+    all.push(_fnUploadOneFile(entries[i]))
   }
-  // await fnRefreshUrls(uploadConfig.urlsToRefresh, mac)
+  return Promise.all(all)
 }
 
-function fnRefreshUrls (urlsToRefresh, mac) {
-  if (!urlsToRefresh.length) return
+// 上传单个文件
+async function _fnUploadOneFile (localFilePath) {
+  const pathPrefix = uploadConfig.pathPrefix || ''
+  let key: any = localFilePath.split('/').filter(v => (v !== '.'))
+  if (pathPrefix) {
+    key[0] = pathPrefix
+  } else {
+    key.shift()
+  }
+  key = key.join('/')
   return new Promise((resolve) => {
-    const cdnManager = new qiniu.cdn.CdnManager(mac)
-    cdnManager.refreshUrls(urlsToRefresh, function (err, respBody, respInfo) {
-      if (err) {
-        console.log(err)
+    formUploader.putFile(uploadQiNiuToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
+      if (respErr) {
+        console.log('上传出错', '本地文件路径', localFilePath, respErr)
         return resolve('failure')
       }
-      console.log(respInfo.statusCode)
       if (respInfo.statusCode === 200) {
-        const jsonBody = JSON.parse(respBody)
-        console.log(jsonBody.code)
-        console.log(jsonBody.error)
-        console.log(jsonBody.requestId)
-        console.log(jsonBody.invalidUrls)
-        console.log(jsonBody.invalidDirs)
-        console.log(jsonBody.urlQuotaDay)
-        console.log(jsonBody.urlSurplusDay)
-        console.log(jsonBody.dirQuotaDay)
-        console.log(jsonBody.dirSurplusDay)
+        console.log('上传成功', '本地文件路径', localFilePath, '远程文件路径', `${qiNiuConfig.cname}/${respBody.path}`)
         resolve('success')
+      } else {
+        console.log('上传失败', '本地文件路径', localFilePath, respInfo.statusCode, respBody)
+        resolve('failure')
       }
     })
   })
 }
 
-export { fnInit, fnDeleteFiles, fnUpload, fnRefreshUrls }
+// 刷新文件 - 刷新文件的CDN缓存，直接输入需要刷新的，文件的访问全路径即可。例如：https://www.xyz.com/index.html
+function fnRefreshUrls (urlsToRefresh: string[]) {
+  if (!isInitSuccess) return console.log('未成功初始化，请检查参数后重试')
+
+  if (!urlsToRefresh.length) return
+  return new Promise((resolve) => {
+    cdnManager.refreshUrls(urlsToRefresh, function (err, respBody, respInfo) {
+      if (err) {
+        console.log('刷新出错', err)
+        return resolve('failure')
+      }
+      if (respInfo.statusCode === 200) {
+        console.log('刷新成功', respInfo.statusCode)
+        resolve('success')
+      } else {
+        console.log('刷新失败', respInfo.statusCode, respBody)
+        resolve('failure')
+      }
+    })
+  })
+}
+
+export { fnInit, fnDeleteFiles, fnUploadFiles, fnRefreshUrls }
