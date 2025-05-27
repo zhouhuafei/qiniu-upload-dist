@@ -22,4 +22,5 @@ const series: Array<gulp.TaskFunction> = [ts2js]
 if (!isProduction) {
   series.push(watcher)
 }
+
 export default gulp.series(...series)
