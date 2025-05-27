@@ -33,8 +33,8 @@ async function run () {
 
   // 删除文件 - 因上传不支持强制性覆盖上传，所以在上传前要先删除掉想要覆盖的文件。
   await fnDeleteFiles([
-    'cjdg/index.html',
-    'cjdg/favicon.ico'
+    'project1/index.html',
+    'project1/favicon.ico'
   ])
 
   // 上传文件 - 不支持强制性覆盖上传 - 文件名称不变，内容不变，上传会提示成功 - 文件名称不变，内容改变，上传会提示失败
@@ -47,15 +47,16 @@ async function run () {
     ],
     // 以 dist 目录中的 css/app.19a8a3b7.css 文件为例
     // 如果 pathPrefix 为 '' 则文件的存储路径为 css/app.19a8a3b7.css
-    // 如果 pathPrefix 为 'cjdg' 则文件的存储路径为 cjdg/css/app.19a8a3b7.css
-    // 如果 pathPrefix 为 'project1/h5/dist' 则文件的存储路径为 project1/h5/dist/css/app.19a8a3b7.css
-    pathPrefix: 'cjdg'
+    // 如果 pathPrefix 为 'project1' 则文件的存储路径为 project1/css/app.19a8a3b7.css
+    // 如果 pathPrefix 为 'project1/dist' 则文件的存储路径为 project1/dist/css/app.19a8a3b7.css
+    pathPrefix: 'project1/dist',
+    remoteFilePathHandler: remoteFilePath => remoteFilePath
   })
 
   // 刷新文件 - 刷新文件的CDN缓存，直接输入需要刷新的，文件的访问全路径即可。例如：https://www.xyz.com/index.html
   await fnRefreshUrls([
-    `${qiNiuConfig.cname}/cjdg/index.html`,
-    `${qiNiuConfig.cname}/cjdg/favicon.ico`
+    `${qiNiuConfig.cname}/project1/index.html`,
+    `${qiNiuConfig.cname}/project1/favicon.ico`
   ])
 }
 

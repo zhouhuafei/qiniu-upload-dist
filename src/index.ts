@@ -3,7 +3,8 @@ import fg from 'fast-glob'
 
 interface UploadConfig {
   fastGlobConfig: [string[], fg.Options]
-  pathPrefix: string
+  pathPrefix: string,
+  remoteFilePathHandler?: (remoteFilePath: string) => string
 }
 
 // isInitSuccess
@@ -120,13 +121,16 @@ async function fnUploadFiles (myUploadConfig: UploadConfig) {
 // 上传单个文件 - 不支持强制性覆盖上传 - 文件名称不变，内容不变，上传会提示成功 - 文件名称不变，内容改变，上传会提示失败
 async function _fnUploadOneFile (localFilePath) {
   const pathPrefix = uploadConfig.pathPrefix || ''
-  let key: any = localFilePath.split('/').filter(v => (v !== '.'))
+  const arr: any = localFilePath.split('/').filter(v => v !== '.' && v !== '..')
   if (pathPrefix) {
-    key[0] = pathPrefix
+    arr[0] = pathPrefix
   } else {
-    key.shift()
+    arr.shift()
   }
-  key = key.join('/')
+  let key = arr.join('/')
+  if (uploadConfig.remoteFilePathHandler) {
+    key = uploadConfig.remoteFilePathHandler(key) || key
+  }
   return new Promise((resolve) => {
     formUploader.putFile(uploadToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
       if (respErr) {
