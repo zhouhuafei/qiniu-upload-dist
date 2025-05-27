@@ -1,4 +1,11 @@
-> 本项目是基于 https://github.com/zhouhuafei/npm-publish-ts/tree/build-ts-use-gulp-babel 项目改造
+## 本项目是使用下述命令创建而来
+```bash
+git clone git@github.com:zhouhuafei/npm-publish-ts.git qiniu-upload-dist
+cd qiniu-upload-dist/
+git remote set-url origin git@github.com:zhouhuafei/qiniu-upload-dist.git
+git pull -p
+git push
+```
 
 ## 把静态资源上传到七牛云进行存储
 ```javascript
