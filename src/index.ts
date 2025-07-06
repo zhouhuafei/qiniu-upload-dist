@@ -95,9 +95,9 @@ function _fnDeleteOneFile (key) {
         resolve('failure')
       } else {
         if (respInfo.statusCode === 200) {
-          console.log('删除成功', respInfo.statusCode)
+          console.log('删除成功', key)
         } else {
-          console.log('删除失败', respInfo.statusCode, respBody)
+          console.log('删除失败', key, respInfo.statusCode, respBody)
         }
         resolve('success')
       }
@@ -137,11 +137,13 @@ async function _fnUploadOneFile (localFilePath) {
         console.log('上传出错', '本地文件路径', localFilePath, respErr)
         return resolve('failure')
       }
+      let logKey = key
+      if (qiNiuConfig.cname) logKey = `${qiNiuConfig.cname}/${key}`
       if (respInfo.statusCode === 200) {
-        console.log('上传成功', '本地文件路径', localFilePath, '远程文件路径', `${qiNiuConfig.cname}/${respBody.path}`)
+        console.log('上传成功', localFilePath, '=>', logKey)
         resolve('success')
       } else {
-        console.log('上传失败', '本地文件路径', localFilePath, respInfo.statusCode, respBody)
+        console.log('上传失败', localFilePath, '=>', logKey, respInfo.statusCode, respBody)
         resolve('failure')
       }
     })
@@ -160,7 +162,7 @@ function fnRefreshUrls (urlsToRefresh: string[]) {
         return resolve('failure')
       }
       if (respInfo.statusCode === 200) {
-        console.log('刷新成功', respInfo.statusCode)
+        console.log('刷新成功')
         resolve('success')
       } else {
         console.log('刷新失败', respInfo.statusCode, respBody)
