@@ -53,7 +53,7 @@ async function run () {
     remoteFilePathHandler: remoteFilePath => remoteFilePath
   })
 
-  // 刷新文件 - 刷新文件的CDN缓存，直接输入需要刷新的，文件的访问全路径即可。例如：https://www.xyz.com/index.html
+  // 刷新文件 - 刷新文件的CDN缓存，直接输入需要刷新的，文件的访问全路径即可。例如：https://development.xyz.com/index.html
   await fnRefreshUrls([
     `${qiNiuConfig.cname}/project1/index.html`,
     `${qiNiuConfig.cname}/project1/favicon.ico`
