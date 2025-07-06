@@ -9,6 +9,7 @@ git push
 
 ## 把静态资源上传到七牛云进行存储
 ```javascript
+const fg = require('fast-glob')
 const { fnInit, fnDeleteFiles, fnUploadFiles, fnRefreshUrls } = require('qiniu-upload-dist')
 
 // 开发环境 or 生产环境
@@ -26,38 +27,44 @@ if (env === 'production') {
   qiNiuConfig.bucket = 'production'
   qiNiuConfig.cname = 'https://production.xyz.com'
 }
+// fast-glob的配置
+const fastGlobConfig = [
+  // ['./dist/**/*.*', '!./dist/**/*.html'], // 上传dist目录中所有的文件，除了以.html结尾的文件。
+  ['./dist/**/*.*'], // 上传dist目录中所有的文件。
+  { dot: true } // 使之支持上传dist目录中，以.开头的文件，例如.editorconfig文件。
+]
+const pathPrefix = 'project1/dist'
 
 async function run () {
   // 初始化 - bucketManager、formUploader、cdnManager
   await fnInit(qiNiuConfig)
 
   // 删除文件 - 因上传不支持强制性覆盖上传，所以在上传前要先删除掉想要覆盖的文件。
-  await fnDeleteFiles([
-    'project1/index.html',
-    'project1/favicon.ico'
-  ])
+  const entries = await fg(...fastGlobConfig)
+  const deleteList = entries.map(v => v.replace('./dist/', '')).map(v => {
+    if (pathPrefix) {
+      return `${pathPrefix}/${v}`
+    } else {
+      return v
+    }
+  })
+  await fnDeleteFiles(deleteList)
 
   // 上传文件 - 不支持强制性覆盖上传 - 文件名称不变，内容不变，上传会提示成功 - 文件名称不变，内容改变，上传会提示失败
   await fnUploadFiles({
     // fast-glob的配置
-    fastGlobConfig: [
-      // ['./dist/**/*.*', '!./dist/**/*.html'], // 上传dist目录中所有的文件，除了以.html结尾的文件。
-      ['./dist/**/*.*'], // 上传dist目录中所有的文件。
-      { dot: true } // 使之支持上传dist目录中，以.开头的文件，例如.editorconfig文件。
-    ],
+    fastGlobConfig,
     // 以 dist 目录中的 css/app.19a8a3b7.css 文件为例
     // 如果 pathPrefix 为 '' 则文件的存储路径为 css/app.19a8a3b7.css
     // 如果 pathPrefix 为 'project1' 则文件的存储路径为 project1/css/app.19a8a3b7.css
     // 如果 pathPrefix 为 'project1/dist' 则文件的存储路径为 project1/dist/css/app.19a8a3b7.css
-    pathPrefix: 'project1/dist',
+    pathPrefix,
     remoteFilePathHandler: remoteFilePath => remoteFilePath
   })
 
   // 刷新文件 - 刷新文件的CDN缓存，直接输入需要刷新的，文件的访问全路径即可。例如：https://development.xyz.com/index.html
-  await fnRefreshUrls([
-    `${qiNiuConfig.cname}/project1/index.html`,
-    `${qiNiuConfig.cname}/project1/favicon.ico`
-  ])
+  const refreshList = deleteList.map(v => `${qiNiuConfig.cname}/${v}`)
+  await fnRefreshUrls(refreshList)
 }
 
 run()
