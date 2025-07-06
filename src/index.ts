@@ -19,8 +19,6 @@ let uploadToken = ''
 let bucketManager: any
 let formUploader: any
 let cdnManager: any
-// putExtra
-let putExtra: any
 // uploadConfig
 let uploadConfig: UploadConfig
 
@@ -63,9 +61,6 @@ async function fnInit (myQiNiuConfig) {
   bucketManager = new qiniu.rs.BucketManager(mac, config)
   formUploader = new qiniu.form_up.FormUploader(config)
   cdnManager = new qiniu.cdn.CdnManager(mac)
-
-  // putExtra
-  putExtra = new qiniu.form_up.PutExtra()
 
   return {
     bucketManager,
@@ -132,6 +127,7 @@ async function _fnUploadOneFile (localFilePath) {
     key = uploadConfig.remoteFilePathHandler(key) || key
   }
   return new Promise((resolve) => {
+    const putExtra = new qiniu.form_up.PutExtra()
     formUploader.putFile(uploadToken, key, localFilePath, putExtra, (respErr, respBody, respInfo) => {
       if (respErr) {
         console.log('上传出错', '本地文件路径', localFilePath, respErr)
